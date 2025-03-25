@@ -42,7 +42,12 @@ find /path-name "filename"
 ```
 ## Tools
 The overall steps for the workflow will be to remove the primers, filter by size, quality filter, then classify. To do this we will use the following tools:
-- **Cutadapt** (primer removal)
-- **Seqkit** (size filtering)
+- **Cutadapt** (primer removal) [citation] (DOI:10.14806/ej.17.1.200 .)
+- Detailed instructions on how to use can be found [here] (https://cutadapt.readthedocs.io/en/stable/guide.html#linked-adapters). The linked adapters section will be particularly useful.
+- Basic command:
+```
+cutadapt -a ^ADAPTER1...ADAPTER2$ -o out.fastq.gz in.fastq.gz
+```
+- **Seqkit** (size filtering) [citation] (doi:10.1002/imt2.191)
 - **Chopper** (quality filtering)
 - **EMU/KRAKEN** (classification)
