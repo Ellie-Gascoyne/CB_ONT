@@ -24,18 +24,21 @@ mkdir -p "${fastq_dir}"
 # Make a directory for primer removal
 mkdir -p "${wor_dir}/fastq_files/primers_removed/16s_leaf"
 
+# fwd_primer="AGAGTTTGATCMTGGCTCAG"
+# rev_primer="CTACCVGGGTATCTAATCCBG"
+
 for file in "${wor_dir}/fastq_files/demultiplexed/16s_leaf"/*.fastq.gz; do
     [ -e "$file" ] || continue
     i=$(basename "$file" .fastq.gz)
 
     cutadapt \
-        -j 6 \
+        -j "${threads}" \
         -e 0.2 \
         -O 15 \
         --match-read-wildcards \
         --revcomp \
         --discard-untrimmed \
-        -g AGAGTTTGATCMTGGCTCAG...AAGTCGTAACAAGGTAACCG \
+        -g AGAGTTTGATCMTGGCTCAG...VGGATTAGATACCCBGGTAG \
         -o "${wor_dir}/fastq_files/primers_removed/16s_leaf/${i}.fastq.gz" \
         "${wor_dir}/fastq_files/demultiplexed/16s_leaf/${i}.fastq.gz"
 
@@ -58,17 +61,13 @@ for file in "${wor_dir}/fastq_files/primers_removed/16s_leaf/"*.fastq.gz; do
 
     echo "Performing size filtering on sample: $i"
 
-    if [ ! -s "${wor_dir}/fastq_files/primers_removed/16s_leaf/$i.fastq.gz" ]; then
-        echo "The file $i is empty. Skipping..."
-    else
-        seqkit seq \
-            -j "${threads}" \
-            -m "${min_length}" \
-            -M "${max_length}" \
-            -g \
-            -o "${wor_dir}/fastq_files/size_filt/16s_leaf/${i}.fastq.gz" \
-            "${wor_dir}/fastq_files/primers_removed/16s_leaf/${i}.fastq.gz"
-    fi
+    seqkit seq \
+        -m "${min_length}" \
+        -M "${max_length}" \
+        -g \
+        -o "${wor_dir}/fastq_files/size_filt/16s_leaf/${i}.fastq.gz" \
+        "${wor_dir}/fastq_files/primers_removed/16s_leaf/${i}.fastq.gz"
+
 done
 
 #######################################
@@ -86,21 +85,16 @@ for file in "${wor_dir}/fastq_files/size_filt/16s_leaf/"*.fastq.gz; do
 
     echo "Performing quality filtering on sample: $i"
 
-    # Quality filtering with chopper
-    if [ ! -s "${wor_dir}/fastq_files/size_filt/16s_leaf/$i.fastq" ]; then
-        echo "The sample $i is empty after size filtering. Skipping..."
-    else
-        chopper \
-            "${wor_dir}/fastq_files/size_filt/16s_leaf/${i}.fastq.gz" \
-            --threads "${threads}" \
-            --headcrop 0 \
-            --tailcrop 0 \
-            -q "${phred_quality_score}" \
-            -l "${min_length}" \
-            --maxlength "${max_length}" |
-            gzip > \
-                "${wor_dir}/fastq_files/chopper/16s_leaf/${i}.fastq.gz"
-    fi
+    chopper \
+        "${wor_dir}/fastq_files/size_filt/16s_leaf/${i}.fastq.gz" \
+        --threads "${threads}" \
+        --headcrop 0 \
+        --tailcrop 0 \
+        -q "${phred_quality_score}" \
+        -l "${min_length}" \
+        --maxlength "${max_length}" |
+        gzip > \
+            "${wor_dir}/fastq_files/chopper/16s_leaf/${i}.fastq.gz"
 
 done
 
