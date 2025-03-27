@@ -1,0 +1,18 @@
+[project]
+channels = ["conda-forge", "bioconda"]
+name = "CB_ONT"
+platforms = ["linux-64", "osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+
+[target.osx-arm64.dependencies]
+python = "3.9.*"
+
+[target.linux-64.dependencies]
+python = "3.9.*"
+cutadapt = "==5.0"
+seqkit = "==2.10.0"
+chopper = "==0.9.2"
