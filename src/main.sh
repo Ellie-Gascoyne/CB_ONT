@@ -7,7 +7,7 @@ threads=6
 
 phred_quality_score=20
 
-emu_db_path=
+emu_db_path=/home/maurice/projects/ellie/databases/emu_gtdb/custom_db
 
 # Define fastq demultiplexed directory
 fastq_dir="${wor_dir}/fastq_files/demultiplexed/16s_leaf"
@@ -81,12 +81,12 @@ mkdir -p "${wor_dir}/fastq_files/chopper/16s_leaf"
 
 for file in "${wor_dir}/fastq_files/size_filt/16s_leaf/"*.fastq.gz; do
     [ -e "$file" ] || continue
-    i=$(basename "$file" .fastq)
+    i=$(basename "$file" .fastq.gz)
 
     echo "Performing quality filtering on sample: $i"
 
     chopper \
-        "${wor_dir}/fastq_files/size_filt/16s_leaf/${i}.fastq.gz" \
+        --input "${wor_dir}/fastq_files/size_filt/16s_leaf/${i}.fastq.gz" \
         --threads "${threads}" \
         --headcrop 0 \
         --tailcrop 0 \
@@ -104,16 +104,16 @@ done
 
 for file in "${wor_dir}/fastq_files/size_filt/16s_leaf/"*.fastq.gz; do
     [ -e "$file" ] || continue
-    i=$(basename "$file" .fastq)
+    i=$(basename "$file" .fastq.gz)
 
     emu abundance \
-        --type map-ont \
+        --type lr:hq \
         --keep-counts \
         --keep-read-assignments \
-        --threads 20 \
-        --min-abundance 0 \
-        \
-        --db /mnt/2TB_SSD/resources/databases/taxonomic_classification/amplicons/16s/gtdb/220.0/all/full_length/emu/derep_custom_db \
+        --threads "${threads}" \
+        --min-abundance 0.001 \
+        --db "${emu_db_path}" \
         --output-basename "${i}" \
-        --output-dir "${wor_dir}/taxonomic_classification/emu/"
+        --output-dir "${wor_dir}/taxonomic_classification/emu/" \
+        "${wor_dir}/fastq_files/chopper/16s_leaf/${i}.fastq.gz"
 done
