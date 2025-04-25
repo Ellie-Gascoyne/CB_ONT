@@ -22,7 +22,7 @@ tar -xvzf gtdb-taxdump-R220.tar.gz
 
 # Run R script
 
-emu build-database custom_db \
+emu build-database "${emu_db_path}/custom_db" \
     --sequences "${emu_db_path}/ssu_all_r220.fna" \
     --seq2tax "${emu_db_path}/seq2tax.map.tsv" \
     --taxonomy-list "${emu_db_path}/taxonomy.tsv"

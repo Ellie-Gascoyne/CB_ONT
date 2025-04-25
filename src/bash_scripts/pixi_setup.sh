@@ -11,3 +11,7 @@ pixi add --platform "linux-64" "cutadapt==5.0"
 pixi add --platform "linux-64" "seqkit==2.10.0"
 
 pixi add --platform "linux-64" "chopper==0.9.2"
+
+pixi add --platform "linux-64" "emu==3.5.1"
+
+pixi remove --platform "linux-64" "cutadapt"
