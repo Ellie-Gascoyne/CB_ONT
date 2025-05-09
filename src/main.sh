@@ -1,13 +1,17 @@
 #!/bin/bash
+source ~/.bashrc
+
+pixi shell
+
 
 # Define working dircetory
-wor_dir=/home/maurice/projects/ellie
+wor_dir=/Users/elliegascoyne/Desktop/Projects/ONT
 
-threads=6
+threads=12
 
 phred_quality_score=20
 
-emu_db_path=/home/maurice/projects/ellie/databases/emu_gtdb/custom_db
+emu_db_path=/Users/elliegascoyne/Desktop/Projects/ONT/databases/custom_db
 
 # Define fastq demultiplexed directory
 fastq_dir="${wor_dir}/fastq_files/demultiplexed/16s_leaf"
@@ -24,6 +28,8 @@ mkdir -p "${fastq_dir}"
 # Make a directory for primer removal
 mkdir -p "${wor_dir}/fastq_files/primers_removed/16s_leaf"
 
+#fwd_primer for its = "TCCGTAGGTGAACCTGCGG"
+# rev_primer for its = "GCATATCAATAAGCGGAGGA"
 # fwd_primer="AGAGTTTGATCMTGGCTCAG"
 # rev_primer="CTACCVGGGTATCTAATCCBG"
 
@@ -117,3 +123,51 @@ for file in "${wor_dir}/fastq_files/size_filt/16s_leaf/"*.fastq.gz; do
         --output-dir "${wor_dir}/taxonomic_classification/emu/" \
         "${wor_dir}/fastq_files/chopper/16s_leaf/${i}.fastq.gz"
 done
+
+
+
+
+
+#Make count and relative abundance taxonomic tables using the 'emu combine-outputs' command
+
+
+#Create a directory for output of Emu
+mkdir -p "${wor_dir}/tables/emu"
+
+
+
+#Create a vector of each taxonomic rank
+taxa=("species" "genus" "family" "order" "class" "phylum")
+
+
+#Loop through each taxonomic rank to create the respective table
+for t in ${taxa[@]}
+do 
+emu combine-outputs "${wor_dir}/taxonomic_classification/emu/" "$t"
+done
+
+
+
+#Create a directory for relative abundance tables produced by the 'emu combine-outputs' command
+mkdir -p $wor_dir/tables/emu/rel_abun
+
+
+#Move tables to relative abundance table
+mv $wor_dir/taxonomic_classification/emu/emu-combined*  $wor_dir/tables/emu/rel_abun
+
+
+
+
+#Loop through each taxonomic rank to create the respective table
+for t in ${taxa[@]}
+do 
+emu combine-outputs "${wor_dir}/" "$t" --counts 
+done
+
+
+#Create a directory for count tables produced by the 'emu combine-outputs' command
+mkdir -p $wor_dir/tables/emu/counts
+
+
+#Move tables to count tables to emu/counts directory 
+mv $wor_dir/emu_output/emu-combined*    $wor_dir/tables/emu/counts
