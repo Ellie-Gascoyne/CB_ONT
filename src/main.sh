@@ -14,7 +14,7 @@ phred_quality_score=20
 emu_db_path=/Users/elliegascoyne/Desktop/Projects/ONT/databases/custom_db
 
 # Define fastq demultiplexed directory
-fastq_dir="${wor_dir}/fastq_files/demultiplexed/16s_leaf"
+fastq_dir="${wor_dir}/fastq_files/demultiplexed/$amplicon"
 
 # Make fastq demultiplexed directory
 mkdir -p "${fastq_dir}"
@@ -87,12 +87,27 @@ done
 #######################################
 #######################################
 
-min_length=650
-max_length=950
 
-mkdir -p "${wor_dir}/fastq_files/size_filt/16s_leaf"
+if [ "$amplicon" = "16s" ]; then
+    min_length=1200
+    max_length=1800
+elif [ "$amplicon" = "16s_leaf" ]; then
+    min_length=650
+    max_length=950
+elif [ "$amplicon" = "its" ]; then
+    min_length=200
+    max_length=1200
+else
+    echo "Unrecognized amplicon type."
+    exit 1
+fi
 
-for file in "${wor_dir}/fastq_files/primers_removed/16s_leaf/"*.fastq.gz; do
+pixi add --platform "osx-arm64" "seqkit==2.10.0"
+
+
+mkdir -p "${wor_dir}/fastq_files/size_filt/$amplicon"
+
+for file in "${wor_dir}/fastq_files/noprimers/$amplicon/"*.fastq.gz; do
     [ -e "$file" ] || continue
     i=$(basename "$file" .fastq.gz)
 
@@ -102,8 +117,8 @@ for file in "${wor_dir}/fastq_files/primers_removed/16s_leaf/"*.fastq.gz; do
         -m "${min_length}" \
         -M "${max_length}" \
         -g \
-        -o "${wor_dir}/fastq_files/size_filt/16s_leaf/${i}.fastq.gz" \
-        "${wor_dir}/fastq_files/primers_removed/16s_leaf/${i}.fastq.gz"
+        -o "${wor_dir}/fastq_files/size_filt/$amplicon/${i}.fastq.gz" \
+        "${wor_dir}/fastq_files/noprimers/$amplicon/${i}.fastq.gz"
 
 done
 
@@ -114,16 +129,16 @@ done
 #######################################
 
 #Create directory for output of chopper
-mkdir -p "${wor_dir}/fastq_files/chopper/16s_leaf"
+mkdir -p "${wor_dir}/fastq_files/chopper/$amplicon"
 
-for file in "${wor_dir}/fastq_files/size_filt/16s_leaf/"*.fastq.gz; do
+for file in "${wor_dir}/fastq_files/size_filt/$amplicon/"*.fastq.gz; do
     [ -e "$file" ] || continue
     i=$(basename "$file" .fastq.gz)
 
     echo "Performing quality filtering on sample: $i"
 
     chopper \
-        --input "${wor_dir}/fastq_files/size_filt/16s_leaf/${i}.fastq.gz" \
+        --input "${wor_dir}/fastq_files/size_filt/$amplicon/${i}.fastq.gz" \
         --threads "${threads}" \
         --headcrop 0 \
         --tailcrop 0 \
@@ -131,7 +146,7 @@ for file in "${wor_dir}/fastq_files/size_filt/16s_leaf/"*.fastq.gz; do
         -l "${min_length}" \
         --maxlength "${max_length}" |
         gzip > \
-            "${wor_dir}/fastq_files/chopper/16s_leaf/${i}.fastq.gz"
+            "${wor_dir}/fastq_files/chopper/$amplicon/${i}.fastq.gz"
 
 done
 
@@ -139,7 +154,20 @@ done
 # Classification with EMU
 #############################
 
-for file in "${wor_dir}/fastq_files/size_filt/16s_leaf/"*.fastq.gz; do
+if [ "$amplicon" = "16s" ]; then
+    emu_db_path=/Users/elliegascoyne/Desktop/Projects/ONT/databases/custom_db
+elif [ "$amplicon" = "16s_leaf" ]; then
+    emu_db_path=/Users/elliegascoyne/Desktop/Projects/ONT/databases/custom_db
+elif [ "$amplicon" = "its" ]; then
+    emu_db_path=/Users/elliegascoyne/Desktop/Projects/ONT/databases/unite_emu_db
+else
+    echo "Unrecognized amplicon type."
+    exit 1
+fi
+
+
+
+for file in "${wor_dir}/fastq_files/size_filt/$amplicon/"*.fastq.gz; do
     [ -e "$file" ] || continue
     i=$(basename "$file" .fastq.gz)
 
@@ -148,22 +176,28 @@ for file in "${wor_dir}/fastq_files/size_filt/16s_leaf/"*.fastq.gz; do
         --keep-counts \
         --keep-read-assignments \
         --threads "${threads}" \
-        --min-abundance 0.001 \
+        --min-abundance 0.0001 \
         --db "${emu_db_path}" \
         --output-basename "${i}" \
-        --output-dir "${wor_dir}/taxonomic_classification/emu/" \
-        "${wor_dir}/fastq_files/chopper/16s_leaf/${i}.fastq.gz"
+        --output-dir "${wor_dir}/taxonomic_classification/emu/$amplicon" \
+        "${wor_dir}/fastq_files/chopper/$amplicon/${i}.fastq.gz"
 done
 
 
 
+
+emu collapse-taxonomy "${wor_dir}/taxonomic_classification/emu/$amplicon/Pos_Ctrl_1_ITS_146_1_rel-abundance.tsv"  'genus'
 
 
 #Make count and relative abundance taxonomic tables using the 'emu combine-outputs' command
 
 
 #Create a directory for output of Emu
-mkdir -p "${wor_dir}/tables/emu"
+mkdir -p "${wor_dir}/tables/emu/${amplicon}"
+
+
+
+
 
 
 
@@ -174,7 +208,7 @@ taxa=("species" "genus" "family" "order" "class" "phylum")
 #Loop through each taxonomic rank to create the respective table
 for t in ${taxa[@]}
 do 
-emu combine-outputs "${wor_dir}/taxonomic_classification/emu/" "$t"
+emu combine-outputs "${wor_dir}/taxonomic_classification/emu/${amplicon}"
 done
 
 

@@ -8,9 +8,13 @@ version = "0.1.0"
 
 [dependencies]
 python = "==3.9"
+osfclient = ">=0.0.5,<0.0.6"
 
 [target.osx-arm64.dependencies]
-python = "3.9.*"
+python = "3.8.*"
+seqkit = "==2.10.0"
+chopper = ">=0.10.0,<0.11"
+emu = ">=3.5.1,<4"
 
 [target.linux-64.dependencies]
 python = "3.10.*"
