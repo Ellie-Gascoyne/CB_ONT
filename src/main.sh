@@ -21,34 +21,65 @@ mkdir -p "${fastq_dir}"
 
 # Manually copy fastq files to the demultiplexed directory
 
-##################
+
+############################################
 #Primer removal
-##################
+############################################
+
+amplicon=its
 
 # Make a directory for primer removal
-mkdir -p "${wor_dir}/fastq_files/primers_removed/16s_leaf"
+mkdir -p "${wor_dir}/fastq_files/noprimers/${amplicon}"
 
-#fwd_primer for its = "TCCGTAGGTGAACCTGCGG"
-# rev_primer for its = "GCATATCAATAAGCGGAGGA"
-# fwd_primer="AGAGTTTGATCMTGGCTCAG"
-# rev_primer="CTACCVGGGTATCTAATCCBG"
+# Dtermine of amplion is 16S or ITS
 
-for file in "${wor_dir}/fastq_files/demultiplexed/16s_leaf"/*.fastq.gz; do
+if [ "$amplicon" = "16s" ]; then
+
+    primers="AGAGTTTGATCMTGGCTCAG...AAGTCGTAACAAGGTAACCG"
+    action=trim
+
+elif [ "$amplicon" = "16s_leaf" ]; then
+
+    primers="AGAGTTTGATCMTGGCTCAG...AAGTCGTAACAAGGTAACCG"
+    action=trim
+
+elif [ "$amplicon" = "its" ]; then
+    primers="TCCGTAGGTGAACCTGCGG...GCATATCAATAAGCGGAGGA"
+    action=retain
+else
+    echo "Unrecognized amplicon type."
+    exit 1
+fi
+
+amplicon_upper=${amplicon^^}
+
+echo "Trimming $amplicon primers from the demultiplexed samples with Cutadapt"
+
+
+# Run cutadapt to remove primers
+for file in "${wor_dir}/fastq_files/demultiplexed/${amplicon}"/*.fastq.gz; do
     [ -e "$file" ] || continue
     i=$(basename "$file" .fastq.gz)
 
+    echo "Performing primer trimming on sample: $i"
+    # Run cutadapt to remove primers
     cutadapt \
-        -j "${threads}" \
-        -e 0.2 \
-        -O 15 \
-        --match-read-wildcards \
+        -j "$threads" \
+        -e 0.10 \
+        -O 10 \
         --revcomp \
+        --action="$action" \
+        --match-read-wildcards \
         --discard-untrimmed \
-        -g AGAGTTTGATCMTGGCTCAG...VGGATTAGATACCCBGGTAG \
-        -o "${wor_dir}/fastq_files/primers_removed/16s_leaf/${i}.fastq.gz" \
-        "${wor_dir}/fastq_files/demultiplexed/16s_leaf/${i}.fastq.gz"
+        -g "$primers" \
+        -o "${wor_dir}/fastq_files/noprimers/${amplicon}/${i}.fastq.gz" \
+        "${wor_dir}/fastq_files/demultiplexed/${amplicon}/${i}.fastq.gz"
 
 done
+
+
+
+
 
 #######################################
 #######################################
