@@ -15,3 +15,11 @@ pixi add --platform "linux-64" "chopper==0.9.2"
 pixi add --platform "linux-64" "emu==3.5.1"
 
 pixi remove --platform "linux-64" "cutadapt"
+
+
+
+pixi remove --platform "osx-arm64"  chooper 
+
+
+
+pixi add --platform "osx-arm64"  "emu==3.5.1"
