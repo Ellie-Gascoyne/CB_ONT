@@ -60,7 +60,7 @@ fi
 
 mkdir -p "$temp_dir"
 
-blast_db="${ref_db_path}/host_depletion/GCF_002870075.4_Lsat_Salinas_v11_genomic"
+blast_db="${ref_db_path}/host_depletion/GCF_000001735.4_TAIR10.1_genomic"
 blast_output="${temp_dir}/blast_results.tsv"
 
 echo "Running BLAST to identify host sequences in sample: $input_fasta"

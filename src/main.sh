@@ -2,12 +2,17 @@
 source ~/.bashrc
 
 pixi shell
-
+ echo start script
+ 
 # Define working dircetory
-# Ellie's working directory
-wor_dir=/Users/elliegascoyne/Desktop/Projects/ONT
+
 # Maurice's working directory
 wor_dir=/home/maurice/projects/ellie
+
+# Ellie's working directory
+wor_dir=/Users/elliegascoyne/Desktop/Projects/ONT
+
+ref_db_dir=/Users/elliegascoyne/resources/tempobiome
 
 threads=12
 
@@ -16,6 +21,8 @@ phred_quality_score=20
 # Define
 # cargo install fqkit
 
+# Get the directory of current script
+SCRIPT_DIR=/Users/elliegascoyne/Documents/GitHub/CB_ONT/src
 # Get the directory of current script (path to main.sh on mac for SCRIPT_DIR=path_to_main.sh)
 SCRIPT_DIR="$(dirname "$0")"
 
@@ -31,6 +38,7 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
     amplicon=$(basename "$amplicon")
 
     amplicon=16s_leaf
+
 
     # QC check the demultiplexed fastq files
     echo "Performing QC check on demultiplexed fastq files for $amplicon"
@@ -404,7 +412,7 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
         -o "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_nohost.fasta" \
         -n "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_host.fasta" \
         -t "$threads" \
-        -r /home/maurice/resources/bixer_v4/ \
+        -r "$ref_db_dir" \
         -i 0.95 \
         -c 0.90 \
         -d "${wor_dir}/tmp/host_depletion/${amplicon}" \
