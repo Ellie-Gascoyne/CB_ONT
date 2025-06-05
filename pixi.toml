@@ -10,11 +10,16 @@ version = "0.1.0"
 python = "==3.9"
 osfclient = ">=0.0.5,<0.0.6"
 deacon = ">=0.4.0,<0.5"
+vsearch = ">=2.30.0,<3"
+blast = ">=2.16.0,<3"
 
 [target.osx-arm64.dependencies]
 python = "3.9.*"
 seqkit = "==2.10.0"
 chopper = ">=0.10.0,<0.11"
+r-ggplot2 = ">=3.5.2,<4"
+r-optparse = ">=1.7.5,<2"
+cutadapt = "==5.1"
 
 [target.linux-64.dependencies]
 python = "3.9.*"
