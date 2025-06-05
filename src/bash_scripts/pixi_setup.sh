@@ -29,3 +29,5 @@ pixi add --platform "osx-arm64" "picrust2==2.6.2"
 
 # Ellie to remove from Mac machine
 pixi remove --platform "osx-arm64" emu
+
+pixi remove --platform "linux-64" "picrust2==2.6.2"

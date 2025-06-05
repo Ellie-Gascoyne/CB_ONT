@@ -46,6 +46,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/curl-8.8.0-he654da7_1.conda
       - conda: https://conda.anaconda.org/bioconda/linux-64/cutadapt-5.1-py39hbcbf7aa_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dbus-1.13.6-h5008d03_3.tar.bz2
+      - conda: https://conda.anaconda.org/bioconda/linux-64/deacon-0.4.0-h4349ce8_0.tar.bz2
       - conda: https://conda.anaconda.org/bioconda/noarch/dendropy-4.5.2-pyh3252c3a_0.tar.bz2
       - conda: https://conda.anaconda.org/bioconda/linux-64/dnaio-1.2.2-py39hff71179_0.tar.bz2
       - conda: https://conda.anaconda.org/bioconda/noarch/emu-3.5.1-hdfd78af_0.tar.bz2
@@ -329,6 +330,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/clang-20-20.1.4-default_h03658f6_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/clang-20.1.4-default_hcdeef69_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/colorama-0.4.6-pyhd8ed1ab_0.tar.bz2
+      - conda: https://conda.anaconda.org/bioconda/osx-arm64/deacon-0.4.0-hda65a65_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/h2-4.1.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/hpack-4.0.0-pyh9f0ad1d_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
@@ -631,8 +633,6 @@ packages:
   - python_abi 3.9.* *_cp39
   constrains:
   - libbrotlicommon 1.1.0 hd74edd7_2
-  arch: arm64
-  platform: osx
   license: MIT
   license_family: MIT
   size: 338488
@@ -769,8 +769,6 @@ packages:
   - python >=3.9,<3.10.0a0
   - python >=3.9,<3.10.0a0 *_cpython
   - python_abi 3.9.* *_cp39
-  arch: arm64
-  platform: osx
   license: MIT
   license_family: MIT
   size: 227265
@@ -947,6 +945,26 @@ packages:
   license_family: GPL
   size: 618596
   timestamp: 1640112124844
+- conda: https://conda.anaconda.org/bioconda/linux-64/deacon-0.4.0-h4349ce8_0.tar.bz2
+  sha256: 0a77f373fb56a1024da43d4a442f6ed8272bfcc1a5d939961fd1cb87bc26a398
+  md5: 94db7d326152a9ba586cca1b7523cb86
+  constrains:
+  - __glibc >=2.17
+  arch: x86_64
+  platform: linux
+  license: MIT
+  size: 1480552
+  timestamp: 1748046730782
+- conda: https://conda.anaconda.org/bioconda/osx-arm64/deacon-0.4.0-hda65a65_0.tar.bz2
+  sha256: 339edc6e41df050dd6e730f822389c0ec3875a95ad136447cccd39e358b894ef
+  md5: d44079879f1ffcfd530f1a8bdc48c75c
+  constrains:
+  - __osx >=11.0
+  arch: arm64
+  platform: osx
+  license: MIT
+  size: 931739
+  timestamp: 1748046666633
 - conda: https://conda.anaconda.org/bioconda/noarch/dendropy-4.5.2-pyh3252c3a_0.tar.bz2
   sha256: 5572a0e4c5adaa0e6639aed74bf36efd87c55458b14fb8e08bb82a9e19462966
   md5: 3b762d50e12b28d30e5f58c832137ed6
@@ -1803,8 +1821,6 @@ packages:
   - __osx >=11.0
   constrains:
   - expat 2.7.0.*
-  arch: arm64
-  platform: osx
   license: MIT
   license_family: MIT
   size: 65714
@@ -2999,8 +3015,6 @@ packages:
   - tzdata
   constrains:
   - python_abi 3.9.* *_cp39
-  arch: arm64
-  platform: osx
   license: Python-2.0
   size: 11895821
   timestamp: 1744674015346
@@ -4482,8 +4496,6 @@ packages:
   - python >=3.9,<3.10.0a0
   - python >=3.9,<3.10.0a0 *_cpython
   - python_abi 3.9.* *_cp39
-  arch: arm64
-  platform: osx
   license: BSD-3-Clause
   license_family: BSD
   size: 520552

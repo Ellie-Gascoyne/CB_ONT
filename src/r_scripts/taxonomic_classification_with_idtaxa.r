@@ -15,5 +15,23 @@ load("/home/maurice/Downloads/GTDB_r226-mod_April2025.RData")
 ids <- IdTaxa(seqs,
    trainingSet,
    strand="both", # or "top" if same as trainingSet
-   threshold=60, # 60 (cautious) or 50 (sensible)
+   threshold=50,
    processors=NULL)
+
+
+ranks <- c("domain", "phylum", "class", "order", "family", "genus", "species") # ranks of interest
+
+
+taxid <- t(sapply(ids, function(x) {
+        m <- match(ranks, x$rank)
+        taxa <- x$taxon[m]
+        taxa[startsWith(taxa, "unclassified_")] <- NA
+        taxa
+}))
+
+
+colnames(taxid) <- ranks
+
+taxid <- as.data.frame(taxid)
+
+sum(!is.na(taxid$genus))

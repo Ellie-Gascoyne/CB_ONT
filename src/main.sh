@@ -16,7 +16,7 @@ phred_quality_score=20
 # Define
 # cargo install fqkit
 
-# Get the directory of current script
+# Get the directory of current script (path to main.sh on mac for SCRIPT_DIR=path_to_main.sh)
 SCRIPT_DIR="$(dirname "$0")"
 
 # Define fastq demultiplexed directory
@@ -337,7 +337,9 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
 
 done
 
+############################################
 #Pool all dereplicated samples into one file
+############################################
 
 for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
     amplicon=$(basename "$amplicon")
@@ -358,7 +360,9 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
 
 done
 
+#################################################
 # Create OTU tables and representative sequences
+#################################################
 
 for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
     amplicon=$(basename "$amplicon")
@@ -395,7 +399,30 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
         --chimeras "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_chimeras.fasta"
 
     # Remove host sequences from the representative sequences
+    bash "$SCRIPT_DIR"/bash_scripts/host_depletion_with_blast.sh \
+        -s "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
+        -o "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_nohost.fasta" \
+        -n "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_host.fasta" \
+        -t "$threads" \
+        -r /home/maurice/resources/bixer_v4/ \
+        -i 0.95 \
+        -c 0.90 \
+        -d "${wor_dir}/tmp/host_depletion/${amplicon}" \
+        -k
+
     # to do: add host sequences to the database
+    # deacon filter \
+    #     -m 6 \
+    #     /home/maurice/resources/host_genomes/arabidopsis_thaliana/GCF_000001735.4_TAIR10.1_genomic.fna.index \
+    #     "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
+    #     -o "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_nohost.fasta"
+
+    # deacon filter \
+    #     -m 6 \
+    #     /home/maurice/resources/host_genomes/arabidopsis_thaliana/GCF_000001735.4_TAIR10.1_genomic.fna.index \
+    #     --invert \
+    #     "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
+    #     -o "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_host.fasta"
 
     # Add label to the representative sequences
     vsearch --fastx_filter "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
@@ -419,8 +446,31 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
         --dbmask none \
         --otutabout "${wor_dir}/tables/sequence_tables/${amplicon}/otu_table_${amplicon}.txt"
 
+    # Convert to biom format
+    biom convert \
+        -i ${wor_dir}/tables/sequence_tables/${amplicon}/otu_table_${amplicon}.txt \
+        -o ${wor_dir}/tables/sequence_tables/${amplicon}/otu_table_${amplicon}.biom \
+        --to-hdf5
+
+    # Clean sequence IDs
+    seqkit replace \
+        -p ";.*" \
+        -r "" \
+        "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otus_sequences_${amplicon}.fasta" |
+        seqkit seq -u |
+        seqkit seq -w 0 \
+            -o ${wor_dir}/fasta_files/representative_sequences/${amplicon}/otus_sequences_${amplicon}_cleaned.fasta
+
     # Use IDTAXA to assign taxonomy to the representative sequences
 
     # Create taxa tables
+
+    # Run PICRUSt2 pipeline
+    echo "Running PICRUSt2 pipeline for $amplicon"
+    picrust2_pipeline.py \
+        -s "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otus_sequences_${amplicon}_cleaned.fasta" \
+        -i "${wor_dir}/tables/sequence_tables/${amplicon}/otu_table_${amplicon}.biom" \
+        -o "${wor_dir}/picrust2_out_pipeline" \
+        -p "$threads"
 
 done
