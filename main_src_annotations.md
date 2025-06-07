@@ -524,3 +524,83 @@ This code uses Seqkit to keep reads that have a phred score of 20 or higher (i.e
 The same qc step as before using 'chopper' as a sample name. the output plots and files from the fqkit and rscript are sent to the newly created chopper directory for the desired amplicon in qc directory. The number of reads should have decreased, but the length of reads should remain within the desired thresholds. 
 
 ### Step 6- ITSxpress (merging and trimming paired-end sequences for ITS reads only)
+The overall aim of this step is to extract just the ITS region from the sequencing reads from the chopper directory. This is similar to the 'Cutadapt' function performed for 16s samples but ITxpress is specifically designed for ITS and can trim the ITS sequences at a faster rate.
+```
+if [ "${amplicon}" == "its" ]; then
+        echo "Performing ITSxpress on the chopper ${amplicon_upper} samples"
+        send_slack_message "Performing ITSxpress on the chopper ${amplicon_upper} samples"
+
+        # Create directory for output of chopper
+        mkdir -p "${wor_dir}/fastq_files/itsxpress/${amplicon}"
+
+        for file in "${wor_dir}/fastq_files/chopper/${amplicon}"/*.fastq.gz; do
+            [ -e "$file" ] || continue
+            i=$(basename "$file" .fastq.gz)
+
+            if find "${wor_dir}/qc/itsxpress/${amplicon}" -maxdepth 3 -type f -name "${i}*" | grep -q .; then
+                echo "QC files already exist for $i. Skipping ITSxpress step and QC step."
+                continue
+            fi
+
+            echo "Performing ITSxpress on sample: $i"
+
+            # Find ITS start and end positions with ITSxpress
+            itsxpress \
+                --fastq "${wor_dir}/fastq_files/chopper/${amplicon}/${i}.fastq.gz" \
+                --threads "$threads" \
+                --single_end \
+                --region ALL \
+                --taxa All \
+                --outfile "${wor_dir}/fastq_files/itsxpress/${amplicon}/${i}.fastq.gz"
+
+        done
+    fi
+
+done
+```
+#### Step 6 - ITSxpress in detail 
+```
+if [ "${amplicon}" == "its" ]; then
+
+```
+This is a conditional check to make sure the ITSxpress only runs on files labelled as with the 'its' amplicon.
+```
+    echo "Performing ITSxpress on the chopper ${amplicon_upper} samples"
+    send_slack_message "Performing ITSxpress on the chopper ${amplicon_upper} samples"
+
+```
+This outputs a log message to the terminal to indicate that the ITSexpress code has started to run.
+```
+    mkdir -p "${wor_dir}/fastq_files/itsxpress/${amplicon}"
+
+```
+Creates a new repo in the fastq_files directory for the itsxpress output files.
+```
+    for file in "${wor_dir}/fastq_files/chopper/${amplicon}"/*.fastq.gz; do
+        [ -e "$file" ] || continue
+        i=$(basename "$file" .fastq.gz)
+```
+The start of the forloop which scans all the files in the chopper directory for any files that have the 'its' amplicon. If the file doesn't exist the '-e' function skips to the next one. Finally, the 'i=' step extracts the sample name from the fast.gz files whilst leaving the extension. 
+```
+        if find "${wor_dir}/qc/itsxpress/${amplicon}" -maxdepth 3 -type f -name "${i}*" | grep -q .; then
+            echo "QC files already exist for $i. Skipping ITSxpress step and QC step."
+            continue
+        fi
+```
+This makes sure the ITSexpress qc file exists already for the sample. If the file is found it is skipped to avoid multiple of the same file. 
+```
+        echo "Performing ITSxpress on sample: $i"
+        itsxpress \
+            --fastq "${wor_dir}/fastq_files/chopper/${amplicon}/${i}.fastq.gz" \  #input file from the filtered 'chopper' file.
+            --threads "$threads" \                                                # desiered number of threads to use as set out in the variable at the start of the pipeline
+            --single_end \                                                        # Describes reads as single reads as opposed to paired reads
+            --region ALL \                                                        # Extracts all ITS regions (e.g. ITS1, ITS2 etc.)
+            --taxa All \                                                          # Works for all taxa with no restrictions.
+            --outfile "${wor_dir}/fastq_files/itsxpress/${amplicon}/${i}.fastq.gz" #Describes the output path directory.
+    done
+fi
+
+```
+The message 'Performing ITSxpress on sample (SAMPLENAME)' is printing so we know which sample is being processed. Find details for each step in the code snippet. ITS regions have now been extracted and and merged for fungal identification. 
+
+### Step 7- OTU clustering a
