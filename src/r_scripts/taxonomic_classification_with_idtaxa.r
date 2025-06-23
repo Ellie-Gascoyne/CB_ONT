@@ -10,7 +10,19 @@ fasta_file_path <- "/home/maurice/projects/ellie/fasta_files/representative_sequ
 seqs <- readDNAStringSet(fasta_file_path)
 
 
-load("/home/maurice/Downloads/GTDB_r226-mod_April2025.RData")
+
+if (amplicon == "its") {
+  ref_file <- "/Users/elliegascoyne/resources/tempobiome/taxonmic_classifcation/its/idtaxa/UNITE_v2025_February2025.RData"
+} else if (amplicon == "16s_leaf") {
+  ref_file <- "/Users/elliegascoyne/resources/tempobiome/taxonmic_classifcation/16s/idtaxa/GTDB_r226-mod_April2025.RData"
+} else if (amplicon == "18s") {
+  ref_file <- "/Users/elliegascoyne/resources/tempobiome/taxonmic_classifcation/18s/idtaxa/PR2_v4.14.0.RData"
+} else {
+  stop("Invalid amplicon type. Please choose 'its' or  '16s_leaf'")
+}
+
+
+load(ref_file)
 
 ids <- IdTaxa(seqs,
    trainingSet,

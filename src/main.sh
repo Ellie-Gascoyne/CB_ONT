@@ -375,7 +375,6 @@ done
 for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
     amplicon=$(basename "$amplicon")
 
-    amplicon=16s_leaf
 
     vsearch \
         --cluster_size "${wor_dir}/fasta_files/representative_sequences/${amplicon}/all_dereplicate_samples_pooled.fasta" \
@@ -407,6 +406,8 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
         --chimeras "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_chimeras.fasta"
 
     # Remove host sequences from the representative sequences
+    for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
+    amplicon=$(basename "$amplicon")
     bash "$SCRIPT_DIR"/bash_scripts/host_depletion_with_blast.sh \
         -s "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
         -o "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_nohost.fasta" \
@@ -417,20 +418,7 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
         -c 0.90 \
         -d "${wor_dir}/tmp/host_depletion/${amplicon}" \
         -k
-
-    # to do: add host sequences to the database
-    # deacon filter \
-    #     -m 6 \
-    #     /home/maurice/resources/host_genomes/arabidopsis_thaliana/GCF_000001735.4_TAIR10.1_genomic.fna.index \
-    #     "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
-    #     -o "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_nohost.fasta"
-
-    # deacon filter \
-    #     -m 6 \
-    #     /home/maurice/resources/host_genomes/arabidopsis_thaliana/GCF_000001735.4_TAIR10.1_genomic.fna.index \
-    #     --invert \
-    #     "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
-    #     -o "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_host.fasta"
+        done
 
     # Add label to the representative sequences
     vsearch --fastx_filter "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
@@ -470,8 +458,12 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
             -o ${wor_dir}/fasta_files/representative_sequences/${amplicon}/otus_sequences_${amplicon}_cleaned.fasta
 
     # Use IDTAXA to assign taxonomy to the representative sequences
+    #Rscript 
 
     # Create taxa tables
+
+
+    #mamba activate picrust2
 
     # Run PICRUSt2 pipeline
     echo "Running PICRUSt2 pipeline for $amplicon"
