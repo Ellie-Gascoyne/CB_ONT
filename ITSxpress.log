@@ -1,0 +1,22 @@
+06-07 12:46 root         INFO     Starting ITSxpress version  2.1.4
+06-07 12:46 root         INFO     Verifying the input sequences.
+06-07 12:46 root         INFO     Temporary directory '/var/folders/nc/fw_vtggx6p54kt_vnpf9_2fh0000gn/T/itsxpress_u1_mus9n' has been created at the default location.
+06-07 12:46 root         INFO     Sequences are assumed to be single-end.
+06-07 12:46 root         INFO     Unique sequences are being written to a temporary FASTA file with Vsearch.
+06-07 12:46 root         INFO     vsearch v2.30.0_macos_aarch64, 8.0GB RAM, 8 cores
+https://github.com/torognes/vsearch
+
+Dereplicating file /Users/elliegascoyne/Desktop/Projects/ONT/fastq_files/chopper/its/Pos_Ctrl_2_ITS_146_1.fastq.gz 100%
+97501 nt in 132 seqs, min 544, max 854, avg 739
+Sorting 100%
+126 unique sequences, avg cluster 1.0, median 1, max 7
+Writing FASTA output file 100%
+Writing uc file, first part 100%
+Writing uc file, second part 100%
+
+06-07 12:46 root         INFO     Searching for ITS start and stop sites using HMMSearch. This step takes a while.
+06-07 12:46 root         INFO     Parsing HMM results.
+06-07 12:46 root         INFO     Counting reads after trimming.
+06-07 12:46 root         INFO     Total number of reads in file /Users/elliegascoyne/Desktop/Projects/ONT/fastq_files/chopper/its/Pos_Ctrl_2_ITS_146_1.fastq.gz is 132.
+06-07 12:46 root         INFO     Total number of reads in file /Users/elliegascoyne/Desktop/Projects/ONT/fastq_files/itsxpress/its/Pos_Ctrl_2_ITS_146_1.fastq.gz is 132.
+06-07 12:46 root         INFO     ITSxpress ran in 00:00:19
