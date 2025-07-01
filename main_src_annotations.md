@@ -603,4 +603,63 @@ fi
 ```
 The message 'Performing ITSxpress on sample (SAMPLENAME)' is printing so we know which sample is being processed. Find details for each step in the code snippet. ITS regions have now been extracted and and merged for fungal identification. 
 
-### Step 7- OTU clustering a
+### Step 7- OTU clustering and Dereplication
+
+Dereplication is an important step in this pipeline as it collapses identical sequences into 1 and keeps a count of how often each sequence appears. This allows for faster downstream processes as there are fewer seqnuences to process, helps accurately group seqs into OTUs and preserves seq counts. This step contains 2 foreloops. The outer foreloop dictates which amplicon should be used and therefore which directory to use. The inner foreloop carries out the VSEARCH dereplication.
+```
+for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
+    amplicon=$(basename "$amplicon")
+
+    amplicon=16s_leaf
+
+    amplicon_upper=${amplicon^^}
+
+    ################
+    # Dereplication
+    ################
+
+    echo "Dereplicating quality filtered ${amplicon_upper} fastq files"
+
+    if [ "$amplicon" == "16s" ] || [ "$amplicon" == "16s_leaf" ]; then
+        dir=chopper
+    elif [ "$amplicon" == "its" ]; then
+        dir=itsxpress
+    else
+        echo "Unrecognized amplicon type."
+        exit 1
+    fi
+
+    # Make a directory for the dereplicated sequences
+    mkdir -p "${wor_dir}/fasta_files/dereplicate/${amplicon}/"
+
+    for file in "${wor_dir}/fastq_files/${dir}/${amplicon}/"*.fastq.gz; do
+        [ -e "$file" ] || continue
+        i=$(basename "$file" .fastq.gz)
+
+        output_file="${wor_dir}/fasta_files/dereplicate/${amplicon}/${i}.fasta"
+
+        if [ -s "$output_file" ]; then
+            echo "Output file for $i already exists. Skipping dereplication for sample: $i"
+            continue
+        fi
+
+        vsearch \
+            --fastx_uniques "${wor_dir}/fastq_files/${dir}/${amplicon}/${i}.fastq.gz" \
+            --fastaout "$output_file" \
+            --sizeout \
+            --relabel "$i". \
+            --fasta_width 0
+    done
+
+done
+```
+### VSEARCH depreplication in detail
+
+```
+        vsearch \
+            --fastx_uniques "${wor_dir}/fastq_files/${dir}/${amplicon}/${i}.fastq.gz" \
+            --fastaout "$output_file" \
+            --sizeout \
+            --relabel "$i". \
+            --fasta_width 0
+```
