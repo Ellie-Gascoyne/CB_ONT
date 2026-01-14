@@ -18,11 +18,14 @@ threads=12
 
 phred_quality_score=20
 
+amplicon=16s_leaf
+
 # Define
 # cargo install fqkit
 
 # Get the directory of current script
 SCRIPT_DIR=/Users/elliegascoyne/Documents/GitHub/CB_ONT/src
+
 
 # Define fastq demultiplexed directory
 fastq_dir="${wor_dir}/fastq_files/demultiplexed/$amplicon"
