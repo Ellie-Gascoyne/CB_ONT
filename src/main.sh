@@ -23,8 +23,6 @@ phred_quality_score=20
 
 # Get the directory of current script
 SCRIPT_DIR=/Users/elliegascoyne/Documents/GitHub/CB_ONT/src
-# Get the directory of current script (path to main.sh on mac for SCRIPT_DIR=path_to_main.sh)
-SCRIPT_DIR="$(dirname "$0")"
 
 # Define fastq demultiplexed directory
 fastq_dir="${wor_dir}/fastq_files/demultiplexed/$amplicon"
@@ -421,7 +419,7 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
         done
 
     # Add label to the representative sequences
-    vsearch --fastx_filter "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras.fasta" \
+    vsearch --fastx_filter "${wor_dir}/fasta_files/representative_sequences/${amplicon}/otu_representative_sequences_${amplicon}_sorted_nonchimeras_nohost.fasta" \
         --threads "$threads" \
         --sizein \
         --sizeout \
@@ -442,7 +440,7 @@ for amplicon in "${wor_dir}/fastq_files/demultiplexed/"*; do
         --dbmask none \
         --otutabout "${wor_dir}/tables/sequence_tables/${amplicon}/otu_table_${amplicon}.txt"
 
-    # Convert to biom format
+    # MAKE SURE TO REMOVE THE HASTAG WITHIN THE .TXT FILE FROM THE PREVIOUS OUTPUT BEFORE THIS STEP.  Convert to biom format
     biom convert \
         -i ${wor_dir}/tables/sequence_tables/${amplicon}/otu_table_${amplicon}.txt \
         -o ${wor_dir}/tables/sequence_tables/${amplicon}/otu_table_${amplicon}.biom \
